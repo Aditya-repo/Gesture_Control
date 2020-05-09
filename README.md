@@ -5,6 +5,7 @@ the master branch contains all the different methods we tried to achieve gesture
 this is still a work in progress. production level performance should not be expected. Thank You.
 ## development:
 1. clone this repository or download as zip.
-2. the files of concern are simple.py and action_maker.py.
-3. other python files contain alternate methods to achieve gesture control.
-4. play around, add your own approach
+2. make sure you have python 3.6.9 or above installed and also opencv version '4.1.0' or above installed.
+3. the files of concern are simple.py and action_maker.py.
+4. other python files contain alternate methods to achieve gesture control.
+5. play around, add your own approach
