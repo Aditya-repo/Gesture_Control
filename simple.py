@@ -3,6 +3,7 @@ import numpy as np
 import copy
 import math
 import action_maker
+import time
 
 # parameters
 cap_region_x_begin = 0.5  # start point/total width
@@ -71,17 +72,15 @@ camera = cv2.VideoCapture(0)
 camera.set(10, 200)
 cv2.namedWindow('trackbar')
 cv2.createTrackbar('trh1', 'trackbar', threshold, 100, printThreshold)
-
+ccx=0
+ccy=0
 while camera.isOpened():
 	ret, frame = camera.read()
 	threshold = cv2.getTrackbarPos('trh1', 'trackbar')
 	frame = cv2.bilateralFilter(frame, 5, 50, 100)  # smoothing filter
 	frame = cv2.flip(frame, 1)  # flip the frame horizontally
-	cv2.rectangle(frame,
-				  (int(cap_region_x_begin * frame.shape[1]), 0),
-				  (frame.shape[1], int(cap_region_y_end * frame.shape[0])),
-				  (255, 0, 0),
-				  2)
+	cv2.rectangle(frame, (int(cap_region_x_begin * frame.shape[1]), 0),
+				  (frame.shape[1], int(cap_region_y_end * frame.shape[0])), (255, 0, 0), 2)
 	cv2.imshow('original', frame)
 
 	#  Main operation
@@ -111,15 +110,39 @@ while camera.isOpened():
 			cv2.drawContours(drawing, [hull], 0, (0, 0, 255), 3)
 
 			isFinishCal, cnt = calculateFingers(res, drawing)
-			#com_x, com_y = movement_cap(res)
-			#cv2.circle(drawing, (com_x, com_y), 10, [200, 255, 109], -1)
+			com_x, com_y = movement_cap(res)
+#code for detecting slide
+
+			if (ccy != 0 and com_y < ccy):
+				if ccy - com_y > 10:
+					print("up\n")
+					action_maker.initAction(30)
+			elif (ccy != 0 and com_y > ccy):
+				if com_y - ccy > 10:
+					print("down\n")
+					action_maker.initAction(20)
+			if (ccx != 0 and com_x < ccx):
+				if ccx - com_x > 10:
+					print("left\n")
+					action_maker.initAction(50)
+			elif (ccx != 0 and com_x > ccx):
+				if com_x - ccx > 10:
+					print("right\n")
+					action_maker.initAction(40)
+
+#code for slide ends here
+			cv2.circle(drawing, (com_x, com_y), 10, [200, 255, 109], -1)
+			print("cx:%d,cy:%d\n" %(com_x,com_y))
+			ccx=com_x
+			ccy=com_y
 			if isFinishCal is True:
 				print(cnt)
 				action_maker.initAction(cnt)
+
 		cv2.imshow('output', drawing)
 
 	# Keyboard OP
-	k = cv2.waitKey(10)
+	k = cv2.waitKey(1)
 	if k == 27:  # press ESC to exit
 		camera.release()
 		cv2.destroyAllWindows()
